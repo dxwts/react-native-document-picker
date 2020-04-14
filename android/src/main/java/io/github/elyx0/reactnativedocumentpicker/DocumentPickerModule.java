@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 import android.content.ContentUris;
 import android.os.Environment;
@@ -469,9 +471,29 @@ public class DocumentPickerModule extends ReactContextBaseJavaModule {
 
 
 
+    private static String uriToPath(Uri uri) {
+        List<String> list =  uri.getPathSegments();
+        Log.d("list", list.toString());
+      String slash = "/";
+      StringBuilder sb = new StringBuilder();
+      int i = 1;
+      while (i < list.size() - 1) {
+          sb.append(list.get(i));
+          sb.append(slash);
+          i++;
+      }
+      sb.append(list.get(i));
+      String path = Environment.getExternalStorageDirectory() + "/" + sb.toString();
+      File file = new File(path);
+      if (file.exists()) {
+          return path;
+      }
+      return null;
+    }
+
     public static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         Cursor cursor = null;
-        String column = MediaStore.Images.Media.DATA;
+        final String column =  MediaStore.Files.FileColumns.DATA;
         String[] projection = { column };
         try {
             cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
@@ -482,8 +504,8 @@ public class DocumentPickerModule extends ReactContextBaseJavaModule {
         } finally {
             if (cursor != null)
                 cursor.close();
-        }
-        return null;
+            }
+          return uriToPath(uri);
     }
 
     public static boolean isLocalStorageDocument(Uri uri) {

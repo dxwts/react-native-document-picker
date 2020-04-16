@@ -501,7 +501,10 @@ public class DocumentPickerModule extends ReactContextBaseJavaModule {
                 int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
-        } finally {
+        } catch (Exception e) {
+          return uriToPath(uri);
+        }
+        finally {
             if (cursor != null)
                 cursor.close();
             }
